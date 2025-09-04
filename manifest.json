@@ -1,0 +1,8 @@
+{
+  "name": "Figma Scene7 Image Importer",
+  "id": "1372332569338662391",
+  "api": "1.0.0",
+  "main": "plugin/code.js",
+  "ui": "index.html",
+  "editorType": ["figma"]
+}

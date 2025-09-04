@@ -93,14 +93,13 @@ const App: React.FC = () => {
         }));
 
         console.log("Placing multiple images:", { images: imagesToPlace });
-        /*
+        
         parent.postMessage({
             pluginMessage: {
                 type: 'CREATE_MULTIPLE_IMAGES',
                 images: imagesToPlace,
             }
         }, '*');
-        */
     };
 
     return (
