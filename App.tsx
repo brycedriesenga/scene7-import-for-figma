@@ -9,6 +9,7 @@ import ParamControls from './components/ParamControls';
 import Preview from './components/Preview';
 import Button from './components/common/Button';
 import BackgroundControls from './components/BackgroundControls';
+import ThemeToggle from './components/ThemeToggle';
 
 const extractImageName = (urlOrName: string): string => {
     const trimmed = urlOrName.trim();
@@ -103,8 +104,9 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="bg-gray-800 text-white min-h-screen font-sans">
-            <div className="p-4 space-y-6 max-w-md mx-auto">
+        <div className="bg-zinc-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 min-h-screen font-sans transition-colors duration-300">
+            <div className="p-6 space-y-6 max-w-lg mx-auto relative">
+                <ThemeToggle />
                 <Header />
 
                 <ImageNameInput value={rawInput} onChange={setRawInput} />

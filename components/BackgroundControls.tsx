@@ -15,7 +15,7 @@ const BG_OPTIONS = [
 const BackgroundControls: React.FC<BackgroundControlsProps> = ({ selected, onChange }) => {
     return (
         <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-300">Preview Background</h3>
+            <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Preview Background</h3>
             <div className="flex items-center space-x-2">
                 {BG_OPTIONS.map(opt => (
                     <button
@@ -23,8 +23,8 @@ const BackgroundControls: React.FC<BackgroundControlsProps> = ({ selected, onCha
                         onClick={() => onChange(opt.value)}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                             selected === opt.value
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                                ? 'bg-zinc-900 dark:bg-zinc-200 text-white dark:text-zinc-900'
+                                : 'bg-white dark:bg-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-500'
                         }`}
                     >
                         {opt.label}

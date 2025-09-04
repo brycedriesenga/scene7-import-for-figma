@@ -17,7 +17,7 @@ const ParamControls: React.FC<ParamControlsProps> = ({ params, setParams, addSha
     };
 
     return (
-        <div className="space-y-4 p-4 bg-gray-700/50 rounded-lg">
+        <div className="space-y-4 p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
             
             <ControlSelect
                 label="Format (fmt)"
@@ -31,7 +31,7 @@ const ParamControls: React.FC<ParamControlsProps> = ({ params, setParams, addSha
                 ]}
             />
 
-            <div className="border-t border-gray-600 pt-4">
+            <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
                 <ControlCheckbox
                     label="Create Shadow Layer"
                     checked={addShadowLayer}

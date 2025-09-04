@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ControlSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -8,9 +7,9 @@ interface ControlSelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 
 const ControlSelect: React.FC<ControlSelectProps> = ({ label, options, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
+        <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">{label}</label>
         <select
-            className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100 rounded-md p-2 focus:ring-yellow-400 focus:border-yellow-400"
             {...props}
         >
             {options.map(option => (

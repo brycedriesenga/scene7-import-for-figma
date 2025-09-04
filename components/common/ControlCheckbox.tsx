@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ControlCheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -11,13 +10,13 @@ const ControlCheckbox: React.FC<ControlCheckboxProps> = ({ label, description, .
         <div className="flex items-center h-5">
             <input
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                className="h-4 w-4 text-yellow-400 bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600 rounded focus:ring-yellow-500"
                 {...props}
             />
         </div>
         <div className="text-sm">
-            <span className="font-medium text-gray-300">{label}</span>
-            {description && <p className="text-gray-400">{description}</p>}
+            <span className="font-medium text-zinc-800 dark:text-zinc-200">{label}</span>
+            {description && <p className="text-zinc-500 dark:text-zinc-400">{description}</p>}
         </div>
     </label>
 );

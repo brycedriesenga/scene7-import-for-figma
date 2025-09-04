@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import LoadingSpinner from './common/LoadingSpinner';
+import { useTheme } from '../contexts/ThemeContext';
 
 const PreviewItem: React.FC<{ url: string; shadowUrl?: string; background: string; }> = ({ url, shadowUrl, background }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const imgRef = useRef<HTMLImageElement>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         // Reset state whenever the URL changes
@@ -43,27 +45,30 @@ const PreviewItem: React.FC<{ url: string; shadowUrl?: string; background: strin
 
     const backgroundStyle = useMemo((): React.CSSProperties => {
         if (background === 'transparent') {
+            const isDark = theme === 'dark';
+            const gridColor = isDark ? '#3f3f46' : '#e4e4e7'; // zinc-700 and zinc-200
+            const bgColor = isDark ? '#27272a' : '#f4f4f5'; // zinc-800 and zinc-100
             return {
                 backgroundImage: `
-                    linear-gradient(45deg, #666 25%, transparent 25%), 
-                    linear-gradient(-45deg, #666 25%, transparent 25%), 
-                    linear-gradient(45deg, transparent 75%, #666 75%), 
-                    linear-gradient(-45deg, transparent 75%, #666 75%)`,
+                    linear-gradient(45deg, ${gridColor} 25%, transparent 25%), 
+                    linear-gradient(-45deg, ${gridColor} 25%, transparent 25%), 
+                    linear-gradient(45deg, transparent 75%, ${gridColor} 75%), 
+                    linear-gradient(-45deg, transparent 75%, ${gridColor} 75%)`,
                 backgroundSize: '20px 20px',
                 backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                backgroundColor: '#555'
+                backgroundColor: bgColor
             };
         }
         return { backgroundColor: background };
-    }, [background]);
+    }, [background, theme]);
 
     return (
         <div 
             style={backgroundStyle}
-            className="w-full aspect-square rounded-lg border border-gray-700 flex items-center justify-center overflow-hidden relative transition-colors"
+            className="w-full aspect-square rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center overflow-hidden relative transition-colors bg-white dark:bg-zinc-800"
         >
             {isLoading && <LoadingSpinner />}
-            {error && !isLoading && <p className="text-red-400 text-xs p-2 text-center">{error}</p>}
+            {error && !isLoading && <p className="text-red-500 text-xs p-2 text-center">{error}</p>}
             
             {shadowUrl && (
                  <img
@@ -98,7 +103,7 @@ const Preview: React.FC<PreviewProps> = ({ urls, shadowUrls = [], background }) 
 
     return (
         <div className="mt-4">
-            <h3 className="text-sm font-semibold mb-2 text-gray-300">Live Preview</h3>
+            <h3 className="text-sm font-semibold mb-2 text-zinc-700 dark:text-zinc-300">Live Preview</h3>
             <div 
                 className={`w-full ${
                     isGrid
@@ -107,8 +112,8 @@ const Preview: React.FC<PreviewProps> = ({ urls, shadowUrls = [], background }) 
                 }`}
             >
                 {!hasUrls && (
-                    <div className="w-full aspect-square rounded-lg border border-dashed border-gray-600 flex items-center justify-center">
-                         <p className="text-gray-500 text-sm">Enter image URLs to see a preview</p>
+                    <div className="w-full aspect-square rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center">
+                         <p className="text-zinc-400 dark:text-zinc-500 text-sm">Enter image URLs to see a preview</p>
                     </div>
                 )}
                 
