@@ -1,0 +1,5 @@
+{
+  "name": "Figma Scene7 Image Importer",
+  "description": "A plugin to import images from Adobe Scene7 (Dynamic Media) directly into Figma. Allows for live customization of URL parameters like clipping paths, format, and quality, with a real-time preview. Includes an advanced feature to create a separate shadow layer.",
+  "requestFramePermissions": []
+}
