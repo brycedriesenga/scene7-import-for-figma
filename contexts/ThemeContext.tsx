@@ -10,27 +10,36 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [theme, setTheme] = useState<Theme>(() => {
-        const storedTheme = localStorage.getItem('theme');
-        if (storedTheme === 'dark' || storedTheme === 'light') {
-            return storedTheme;
-        }
-        // Prefers dark mode if user's system is set to it
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
-    });
+    const [theme, setTheme] = useState<Theme>('light');
 
     useEffect(() => {
-        localStorage.setItem('theme', theme);
+        // Ask the main plugin code for the stored theme
+        parent.postMessage({ pluginMessage: { type: 'GET_THEME' } }, '*');
+
+        // Listen for messages from the main plugin code
+        window.onmessage = (event) => {
+            const msg = event.data.pluginMessage;
+            if (msg && msg.type === 'THEME_IS') {
+                if (msg.theme === 'light' || msg.theme === 'dark') {
+                    setTheme(msg.theme);
+                }
+            }
+        };
+    }, []);
+
+    useEffect(() => {
         const root = window.document.documentElement;
+        console.log(`Theme changed to: ${theme}. Applying class to HTML element.`);
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
+        console.log("HTML element classes:", root.className);
     }, [theme]);
 
     const toggleTheme = () => {
-        setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        // Tell the main plugin code to save the new theme
+        parent.postMessage({ pluginMessage: { type: 'SET_THEME', theme: newTheme } }, '*');
     };
     
     const value = useMemo(() => ({ theme, toggleTheme }), [theme]);

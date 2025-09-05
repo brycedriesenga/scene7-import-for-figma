@@ -2,7 +2,13 @@
   "name": "Figma Scene7 Image Importer",
   "id": "1372332569338662391",
   "api": "1.0.0",
-  "main": "plugin/code.js",
-  "ui": "index.html",
-  "editorType": ["figma"]
+  "main": "dist/code.js",
+  "ui": "dist/index.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": [
+      "https://cdn.tailwindcss.com",
+      "https://s7d4.scene7.com"
+    ]
+  }
 }

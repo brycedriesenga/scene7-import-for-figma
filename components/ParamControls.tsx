@@ -19,26 +19,12 @@ const ParamControls: React.FC<ParamControlsProps> = ({ params, setParams, addSha
     return (
         <div className="space-y-4 p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
             
-            <ControlSelect
-                label="Format (fmt)"
-                value={params.fmt || 'jpeg'}
-                onChange={(e) => handleParamChange('fmt', e.target.value as Scene7Params['fmt'])}
-                options={[
-                    { value: 'png-alpha', label: 'PNG (Transparent)' },
-                    { value: 'png', label: 'PNG' },
-                    { value: 'jpeg', label: 'JPEG' },
-                    { value: 'gif', label: 'GIF' },
-                ]}
+            <ControlCheckbox
+                label="Create Shadow Layer"
+                checked={addShadowLayer}
+                onChange={(e) => setAddShadowLayer(e.target.checked)}
+                description="Places a second, multiplied layer underneath for shadows."
             />
-
-            <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                <ControlCheckbox
-                    label="Create Shadow Layer"
-                    checked={addShadowLayer}
-                    onChange={(e) => setAddShadowLayer(e.target.checked)}
-                    description="Places a second, multiplied layer underneath for shadows."
-                />
-            </div>
         </div>
     );
 };

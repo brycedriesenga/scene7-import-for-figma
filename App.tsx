@@ -168,7 +168,7 @@ const App: React.FC = () => {
     };
 
     const finalUrls = useMemo(() => {
-        return imageNames.map(name => buildUrl(name, params));
+        return imageNames.map(name => `${buildUrl(name, params)}&fmt=png-alpha`);
     }, [imageNames, params]);
     
     const shadowUrls = useMemo(() => {
@@ -178,8 +178,9 @@ const App: React.FC = () => {
             const shadowParams: Scene7Params = { ...params };
             delete shadowParams.clipPathE;
             delete shadowParams.pathEmbed;
-            shadowParams.fmt = 'jpeg'; // Shadows look best on a solid background
-            return buildUrl(name, shadowParams);
+            // Shadows look best on a solid background, so force jpeg format.
+            const baseUrl = buildUrl(name, shadowParams);
+            return `${baseUrl}&fmt=jpeg`;
         });
     }, [imageNames, params, addShadowLayer]);
 
@@ -213,9 +214,13 @@ const App: React.FC = () => {
         }, '*');
     };
 
+    useEffect(() => {
+        console.log("App component mounted.");
+    }, []);
+
     return (
         <div className="bg-zinc-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 min-h-screen font-sans transition-colors duration-300">
-            <div className="p-6 space-y-6 max-w-lg mx-auto relative">
+            <div className="p-6 space-y-6 max-w-lg mx-auto relative pt-20">
                 <ThemeToggle />
                 <Header />
 

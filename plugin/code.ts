@@ -1,47 +1,20 @@
-// Fix: Declare Figma plugin API globals and types to resolve TypeScript errors.
-// This is a workaround for environments where the @figma/plugin-typings package
-// is not available or properly configured.
-declare const figma: any;
-declare const __html__: string;
-type SceneNode = any;
-type RectangleNode = any;
-type Paint = any;
-type FrameNode = any;
-type GroupNode = any;
-type ComponentNode = any;
-type InstanceNode = any;
-type PageNode = any;
-
-
-// --- TYPE DEFINITIONS ---
-interface ImageData {
-    imageName: string;
-    topLayerUrl: string;
-    shadowLayerUrl: string;
-}
-
-interface PlacementOptions {
-    placementMode: 'new' | 'replace';
-    filterByName: boolean;
-    nameFilter: string;
-}
-
-interface PluginMessage {
-    type: string;
-    images: ImageData[];
-    options: PlacementOptions;
-}
-
-
-// --- FIGMA PLUGIN INITIALIZATION ---
-// Runs this code once the plugin is launched
 figma.showUI(__html__, { width: 500, height: 850 });
 
-
-// --- MESSAGE HANDLING ---
-// Listens for messages from the UI
-figma.ui.onmessage = async (msg: PluginMessage) => {
-    if (msg.type === 'PLACE_IMAGES') {
+figma.ui.onmessage = async (msg) => {
+    if (msg.type === 'GET_THEME') {
+        try {
+            const theme = await figma.clientStorage.getAsync('theme');
+            figma.ui.postMessage({ type: 'THEME_IS', theme });
+        } catch (e) {
+            console.error("Error getting theme:", e);
+        }
+    } else if (msg.type === 'SET_THEME') {
+        try {
+            await figma.clientStorage.setAsync('theme', msg.theme);
+        } catch (e) {
+            console.error("Error setting theme:", e);
+        }
+    } else if (msg.type === 'PLACE_IMAGES') {
         const { images, options } = msg;
 
         if (!images || images.length === 0) {
