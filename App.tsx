@@ -10,6 +10,109 @@ import Preview from './components/Preview';
 import Button from './components/common/Button';
 import BackgroundControls from './components/BackgroundControls';
 import ThemeToggle from './components/ThemeToggle';
+import ControlCheckbox from './components/common/ControlCheckbox';
+
+// --- Placement Options Component ---
+
+interface PlacementOptionsProps {
+    placementMode: 'new' | 'replace';
+    setPlacementMode: (mode: 'new' | 'replace') => void;
+    filterByName: boolean;
+    setFilterByName: (value: boolean) => void;
+    nameFilter: string;
+    setNameFilter: (value: string) => void;
+}
+
+const RadioOption: React.FC<{
+    id: string;
+    label: string;
+    description: string;
+    value: 'new' | 'replace';
+    checked: boolean;
+    onChange: (value: 'new' | 'replace') => void;
+}> = ({ id, label, description, value, checked, onChange }) => (
+    <div 
+        onClick={() => onChange(value)}
+        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
+            checked 
+                ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400' 
+                : 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'
+        }`}
+    >
+        <input
+            id={id}
+            type="radio"
+            name="placementMode"
+            value={value}
+            checked={checked}
+            onChange={() => onChange(value)}
+            className="h-4 w-4 text-yellow-400 focus:ring-yellow-500 border-zinc-300 dark:border-zinc-600"
+        />
+        <div className="ml-3 text-sm">
+            <label htmlFor={id} className="font-medium text-zinc-800 dark:text-zinc-200">{label}</label>
+            <p className="text-zinc-500 dark:text-zinc-400">{description}</p>
+        </div>
+    </div>
+);
+
+
+const PlacementOptions: React.FC<PlacementOptionsProps> = ({
+    placementMode,
+    setPlacementMode,
+    filterByName,
+    setFilterByName,
+    nameFilter,
+    setNameFilter,
+}) => {
+    return (
+        <div className="space-y-4">
+             <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Placement Options</h3>
+            <div className="grid grid-cols-1 gap-3">
+                <RadioOption
+                    id="newLayers"
+                    label="Create new layers"
+                    description="Places images on the canvas, ignoring selection."
+                    value="new"
+                    checked={placementMode === 'new'}
+                    onChange={setPlacementMode}
+                />
+                 <RadioOption
+                    id="replaceSelection"
+                    label="Replace selected layers"
+                    description="Replaces the fill of selected layers with images."
+                    value="replace"
+                    checked={placementMode === 'replace'}
+                    onChange={setPlacementMode}
+                />
+            </div>
+            
+            {placementMode === 'replace' && (
+                <div className="pl-4 pr-2 py-3 border-l-2 border-yellow-400 space-y-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-r-md">
+                     <ControlCheckbox
+                        label="Filter selection by layer name"
+                        checked={filterByName}
+                        onChange={(e) => setFilterByName(e.target.checked)}
+                        description="Only replace layers whose name contains specific text."
+                    />
+                    {filterByName && (
+                         <div>
+                            <input
+                                type="text"
+                                value={nameFilter}
+                                onChange={(e) => setNameFilter(e.target.value)}
+                                placeholder="e.g. 'Product Image'"
+                                className="w-full bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100 rounded-md p-2 focus:ring-yellow-400 focus:border-yellow-400 placeholder-zinc-400 dark:placeholder-zinc-500 text-sm"
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+// --- Main App Component ---
 
 const extractImageName = (urlOrName: string): string => {
     const trimmed = urlOrName.trim();
@@ -32,6 +135,9 @@ const App: React.FC = () => {
     const [params, setParams] = useState<Scene7Params>(DEFAULT_PARAMS);
     const [addShadowLayer, setAddShadowLayer] = useState<boolean>(true);
     const [previewBackground, setPreviewBackground] = useState<string>('transparent');
+    const [placementMode, setPlacementMode] = useState<'new' | 'replace'>('new');
+    const [filterByName, setFilterByName] = useState<boolean>(false);
+    const [nameFilter, setNameFilter] = useState<string>('Product Image');
 
     useEffect(() => {
         const names = rawInput
@@ -92,12 +198,17 @@ const App: React.FC = () => {
             shadowLayerUrl: addShadowLayer ? shadowUrls[index] : '',
         }));
 
-        console.log("Placing multiple images:", { images: imagesToPlace });
+        console.log("Placing multiple images:", { images: imagesToPlace, mode: placementMode });
         
         parent.postMessage({
             pluginMessage: {
-                type: 'CREATE_MULTIPLE_IMAGES',
+                type: 'PLACE_IMAGES',
                 images: imagesToPlace,
+                options: {
+                    placementMode,
+                    filterByName,
+                    nameFilter
+                }
             }
         }, '*');
     };
@@ -120,6 +231,15 @@ const App: React.FC = () => {
                 <Preview urls={debouncedUrls} shadowUrls={debouncedShadowUrls} background={previewBackground} />
                 
                 <BackgroundControls selected={previewBackground} onChange={setPreviewBackground} />
+
+                <PlacementOptions
+                    placementMode={placementMode}
+                    setPlacementMode={setPlacementMode}
+                    filterByName={filterByName}
+                    setFilterByName={setFilterByName}
+                    nameFilter={nameFilter}
+                    setNameFilter={setNameFilter}
+                />
 
                 <div className="pt-2">
                     <Button onClick={handlePlaceImage} disabled={imageNames.length === 0}>
