@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Scene7Params } from './types';
 import { SCENE7_BASE_URL, DEFAULT_PARAMS } from './constants';
-import { useDebounce } from './hooks/useDebounce';
+import useDebounce from './hooks/useDebounce';
 
 import Header from './components/Header';
 import ImageNameInput from './components/ImageNameInput';
@@ -199,7 +199,7 @@ const App: React.FC = () => {
             shadowLayerUrl: addShadowLayer ? shadowUrls[index] : '',
         }));
 
-        console.log("Placing multiple images:", { images: imagesToPlace, mode: placementMode });
+
         
         parent.postMessage({
             pluginMessage: {
@@ -215,7 +215,7 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log("App component mounted.");
+
     }, []);
 
     return (

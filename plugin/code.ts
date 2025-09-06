@@ -1,4 +1,16 @@
-figma.showUI(__html__, { width: 500, height: 850 });
+figma.showUI(__html__, { width: 380, height: 600 });
+
+type ImageData = {
+    imageName: string;
+    topLayerUrl: string;
+    shadowLayerUrl?: string;
+};
+
+type PlacementOptions = {
+    placementMode: 'new' | 'replace';
+    filterByName?: boolean;
+    nameFilter?: string;
+};
 
 figma.ui.onmessage = async (msg) => {
     if (msg.type === 'GET_THEME') {
@@ -77,21 +89,60 @@ async function createImageFills(imageData: ImageData): Promise<Paint[]> {
  * @param options - Placement options.
  */
 async function replaceSelectionFills(imagesData: ImageData[], options: PlacementOptions) {
-    let targets = figma.currentPage.selection.slice();
 
-    if (targets.length === 0) {
+    let selection = figma.currentPage.selection.slice();
+    if (selection.length === 0) {
         figma.notify('Select layers to replace their fills.', { error: true });
         return;
     }
 
-    if (options.filterByName && options.nameFilter) {
-        targets = targets.filter(node => node.name.includes(options.nameFilter));
-        if (targets.length === 0) {
-            figma.notify(`No selected layers include "${options.nameFilter}" in their name.`, { error: true });
-            return;
+    // Use findAll to robustly get all descendants (including deeply nested)
+    let allDescendants: SceneNode[] = [];
+    for (const node of selection) {
+        if ('findAll' in node) {
+            const found = node.findAll(n => true);
+            allDescendants = allDescendants.concat(found);
         }
     }
-    
+    // Optionally include the selection itself
+    allDescendants = selection.concat(allDescendants);
+
+    // Debug: log how many nodes found
+    console.log(`[Plugin] Selection count: ${selection.length}`);
+    console.log(`[Plugin] Descendants found: ${allDescendants.length}`);
+
+    let matchingByName: SceneNode[] = allDescendants;
+
+    if (options.filterByName && options.nameFilter) {
+        const filter = options.nameFilter.toLowerCase();
+        matchingByName = allDescendants.filter(node => node.name && node.name.toLowerCase() === filter);
+        console.log(`[Plugin] Matching by exact name ('${options.nameFilter}'): ${matchingByName.length}`);
+        if (matchingByName.length === 0) {
+            figma.notify(`No layers (including children) have the exact name "${options.nameFilter}".`, { error: true });
+            return;
+        }
+        // Only select nodes that support fills
+        const fillable = matchingByName.filter(node => 'fills' in node);
+        console.log(`[Plugin] Matching by exact name and fills: ${fillable.length}`);
+        if (fillable.length === 0) {
+            figma.notify(`Matching layers found, but none support fills.`, { error: true });
+            return;
+        }
+        figma.currentPage.selection = fillable;
+        matchingByName = fillable;
+    } else {
+        // Only keep nodes that support fills
+        matchingByName = matchingByName.filter(node => 'fills' in node);
+    }
+
+    let targets = matchingByName;
+
+    if (targets.length === 0) {
+        figma.notify('No layers with fills found in selection (or children).', { error: true });
+        return;
+    }
+    console.log(`[Plugin] Final targets for fill replacement: ${targets.length}`);
+
     if (imagesData.length < targets.length) {
         figma.notify(`Replacing ${targets.length} layers with ${imagesData.length} image(s). Images will be reused.`, { timeout: 3000 });
     }
@@ -100,13 +151,9 @@ async function replaceSelectionFills(imagesData: ImageData[], options: Placement
 
     try {
         const updatePromises = targets.map((node, index) => {
-            if (!('fills' in node)) {
-                console.warn(`Skipping layer "${node.name}" as it does not support fills.`);
-                return Promise.resolve();
-            }
             const imageData = imagesData[index % imagesData.length]; // Cycle through images
             return createImageFills(imageData).then(newFills => {
-                node.fills = newFills;
+                (node as GeometryMixin).fills = newFills;
             });
         });
 
@@ -176,7 +223,7 @@ async function createImageNode(imageData: ImageData): Promise<RectangleNode> {
     
     // The main image determines the node's dimensions
     const mainImageFill = fills.find(f => f.type === 'IMAGE' && f.blendMode !== 'MULTIPLY');
-    if (mainImageFill && mainImageFill.imageHash) {
+    if (mainImageFill && mainImageFill.type === 'IMAGE' && mainImageFill.imageHash) {
          const mainImage = figma.getImageByHash(mainImageFill.imageHash);
          if (mainImage) {
             const { width, height } = await mainImage.getSizeAsync();

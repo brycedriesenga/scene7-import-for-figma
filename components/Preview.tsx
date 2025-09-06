@@ -101,36 +101,24 @@ const Preview: React.FC<PreviewProps> = ({ urls, shadowUrls = [], background }) 
     const hasUrls = urls.length > 0;
     const isGrid = urls.length > 1;
 
+    // Always use the grid style for consistency, even for a single image
     return (
         <div className="mt-4">
             <h3 className="text-sm font-semibold mb-2 text-zinc-700 dark:text-zinc-300">Live Preview</h3>
-            <div 
-                className={`w-full ${
-                    isGrid
-                        ? 'grid grid-cols-2 gap-4'
-                        : ''
-                }`}
-            >
+            <div className="w-full grid grid-cols-2 gap-4">
                 {!hasUrls && (
                     <div className="w-full aspect-square rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center">
                          <p className="text-zinc-400 dark:text-zinc-500 text-sm">Enter image URLs to see a preview</p>
                     </div>
                 )}
-                
-                {hasUrls && isGrid && (
-                    urls.map((url, index) => (
-                        <PreviewItem 
-                            key={`${url}-${index}`}
-                            url={url} 
-                            shadowUrl={shadowUrls[index]} 
-                            background={background} 
-                        />
-                    ))
-                )}
-
-                {hasUrls && !isGrid && (
-                    <PreviewItem url={urls[0]} shadowUrl={shadowUrls[0]} background={background} />
-                )}
+                {hasUrls && urls.map((url, index) => (
+                    <PreviewItem 
+                        key={`${url}-${index}`}
+                        url={url} 
+                        shadowUrl={shadowUrls[index]} 
+                        background={background} 
+                    />
+                ))}
             </div>
         </div>
     );

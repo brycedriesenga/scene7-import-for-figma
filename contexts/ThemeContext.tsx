@@ -9,7 +9,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>('light');
 
     useEffect(() => {
@@ -29,10 +29,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     useEffect(() => {
         const root = window.document.documentElement;
-        console.log(`Theme changed to: ${theme}. Applying class to HTML element.`);
+
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
-        console.log("HTML element classes:", root.className);
+
     }, [theme]);
 
     const toggleTheme = () => {
@@ -51,10 +51,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 };
 
-export const useTheme = (): ThemeContextType => {
+const useTheme = (): ThemeContextType => {
     const context = useContext(ThemeContext);
     if (!context) {
         throw new Error('useTheme must be used within a ThemeProvider');
     }
     return context;
 };
+
+export default ThemeProvider;
+export { useTheme };
